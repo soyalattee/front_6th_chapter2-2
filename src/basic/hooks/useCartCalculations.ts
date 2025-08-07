@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { calculateDiscountedPrice } from '../utils/calculateDiscountedPrice';
 import { CartItem, Product } from '../../types';
 
 export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
@@ -27,7 +28,7 @@ export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
     const { quantity } = item;
     const discount = getMaxApplicableDiscount(item);
 
-    return Math.round(price * quantity * (1 - discount));
+    return calculateDiscountedPrice(price, quantity, discount);
   };
 
   // 상품 재고 수량 확인
