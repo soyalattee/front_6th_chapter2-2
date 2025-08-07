@@ -1,32 +1,24 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { Coupon } from '../../types';
 import { initialCoupons } from '../datas/coupons';
+import { useLocalStorage } from '../utils/hooks/useLocalStorage';
 
 export const useCoupons = () => {
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem('coupons');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialCoupons;
-      }
-    }
-    return initialCoupons;
-  });
+  const [coupons, setCoupons] = useLocalStorage<Coupon[]>('coupons', initialCoupons);
 
-  const addCoupon = useCallback((newCoupon: Coupon) => {
-    setCoupons(prev => [...prev, newCoupon]);
-  }, []);
+  const addCoupon = useCallback(
+    (newCoupon: Coupon) => {
+      setCoupons(prev => [...prev, newCoupon]);
+    },
+    [setCoupons]
+  );
 
-  const deleteCoupon = useCallback((couponCode: string) => {
-    setCoupons(prev => prev.filter(c => c.code !== couponCode));
-  }, []);
-
-  // 쿠폰 데이터 로컬 저장
-  useEffect(() => {
-    localStorage.setItem('coupons', JSON.stringify(coupons));
-  }, [coupons]);
+  const deleteCoupon = useCallback(
+    (couponCode: string) => {
+      setCoupons(prev => prev.filter(c => c.code !== couponCode));
+    },
+    [setCoupons]
+  );
 
   return { coupons, addCoupon, deleteCoupon };
 };
