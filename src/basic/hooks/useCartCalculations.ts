@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { calculateDiscountedPrice } from '../utils/calculateDiscountedPrice';
 import { applyBulkDiscount } from '../utils/applyBulkDiscount';
+import { applyCouponDiscount } from '../utils/applyCouponDiscount';
 import { CartItem, Product } from '../../types';
 
 const BULK_PURCHASE_QUANTITY = 10;
@@ -55,13 +56,8 @@ export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
       totalAfterDiscount += calculateItemTotal(item);
     });
 
-    if (selectedCoupon) {
-      if (selectedCoupon.discountType === 'amount') {
-        totalAfterDiscount = Math.max(0, totalAfterDiscount - selectedCoupon.discountValue);
-      } else {
-        totalAfterDiscount = Math.round(totalAfterDiscount * (1 - selectedCoupon.discountValue / 100));
-      }
-    }
+    // 쿠폰 할인 적용
+    totalAfterDiscount = applyCouponDiscount(totalAfterDiscount, selectedCoupon);
 
     return {
       totalBeforeDiscount: Math.round(totalBeforeDiscount),
