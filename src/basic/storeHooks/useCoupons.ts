@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Coupon } from '../../types';
 import { initialCoupons } from '../datas/coupons';
 
@@ -22,6 +22,11 @@ export const useCoupons = () => {
   const deleteCoupon = useCallback((couponCode: string) => {
     setCoupons(prev => prev.filter(c => c.code !== couponCode));
   }, []);
+
+  // 쿠폰 데이터 로컬 저장
+  useEffect(() => {
+    localStorage.setItem('coupons', JSON.stringify(coupons));
+  }, [coupons]);
 
   return { coupons, addCoupon, deleteCoupon };
 };

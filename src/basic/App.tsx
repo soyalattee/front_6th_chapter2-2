@@ -103,10 +103,7 @@ const App = () => {
     return remaining;
   };
 
-  // 쿠폰 데이터 로컬 저장
-  useEffect(() => {
-    localStorage.setItem('coupons', JSON.stringify(coupons));
-  }, [coupons]);
+ 
 
   // 검색어 디바운스 처리
   useEffect(() => {
