@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { CartItem, Coupon, Product } from '../types';
 import { ProductWithUI } from './datas/products';
-import { initialCoupons } from './datas/coupons';
 import Header from './components/Header';
 import NotificationContainer from './components/NotificationContainer';
 import AdminPage from './components/AdminPage';
@@ -9,22 +8,13 @@ import CustomerPage from './components/CustomerPage';
 import { useNotification } from './hooks/useNotification';
 import { useProducts } from './storeHooks/useProducts';
 import { useCarts } from './storeHooks/useCarts';
+import { useCoupons } from './storeHooks/useCoupons';
 
 const App = () => {
+  // localstorage 저장 데이터들
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart } = useCarts();
-
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem('coupons');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialCoupons;
-      }
-    }
-    return initialCoupons;
-  });
+  const { coupons, addCoupon, deleteCoupon } = useCoupons();
 
   // UI관련 상태값들
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
@@ -219,7 +209,8 @@ const App = () => {
           <AdminPage
             coupons={coupons}
             addNotification={addNotification}
-            setCoupons={setCoupons}
+            addCoupon={addCoupon}
+            deleteCoupon={deleteCoupon}
             setSelectedCoupon={setSelectedCoupon}
             selectedCoupon={selectedCoupon}
             formatPrice={formatPrice}

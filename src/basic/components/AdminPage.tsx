@@ -6,7 +6,8 @@ import { useProducts } from '../storeHooks/useProducts';
 interface AdminPageProps {
   coupons: Coupon[];
   addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-  setCoupons: React.Dispatch<React.SetStateAction<Coupon[]>>;
+  addCoupon: (newCoupon: Coupon) => void;
+  deleteCoupon: (couponCode: string) => void;
   setSelectedCoupon: React.Dispatch<React.SetStateAction<Coupon | null>>;
   selectedCoupon: Coupon | null;
   formatPrice: (price: number, productId?: string) => string;
@@ -19,7 +20,8 @@ interface AdminPageProps {
 const AdminPage = ({
   coupons,
   addNotification,
-  setCoupons,
+  addCoupon,
+  deleteCoupon,
   setSelectedCoupon,
   selectedCoupon,
   formatPrice,
@@ -70,29 +72,29 @@ const AdminPage = ({
   );
 
   // 쿠폰 추가
-  const addCoupon = useCallback(
+  const handleAddCoupon = useCallback(
     (newCoupon: Coupon) => {
       const existingCoupon = coupons.find(c => c.code === newCoupon.code);
       if (existingCoupon) {
         addNotification('이미 존재하는 쿠폰 코드입니다.', 'error');
         return;
       }
-      setCoupons(prev => [...prev, newCoupon]);
+      addCoupon(newCoupon);
       addNotification('쿠폰이 추가되었습니다.', 'success');
     },
     [coupons, addNotification]
   );
 
   // 쿠폰 삭제
-  const deleteCoupon = useCallback(
+  const handleDeleteCoupon = useCallback(
     (couponCode: string) => {
-      setCoupons(prev => prev.filter(c => c.code !== couponCode));
+      deleteCoupon(couponCode);
       if (selectedCoupon?.code === couponCode) {
         setSelectedCoupon(null);
       }
       addNotification('쿠폰이 삭제되었습니다.', 'success');
     },
-    [selectedCoupon, addNotification]
+    [selectedCoupon, addNotification, deleteCoupon]
   );
 
   // 상품 추가/수정 폼 제출
@@ -115,7 +117,7 @@ const AdminPage = ({
   // 쿠폰 추가/수정 폼 제출
   const handleCouponSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addCoupon(couponForm);
+    handleAddCoupon(couponForm);
     setCouponForm({
       name: '',
       code: '',
@@ -442,7 +444,7 @@ const AdminPage = ({
                       </div>
                     </div>
                     <button
-                      onClick={() => deleteCoupon(coupon.code)}
+                      onClick={() => handleDeleteCoupon(coupon.code)}
                       className="text-gray-400 hover:text-red-600 transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
