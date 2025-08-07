@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { CartItem, Coupon, Product } from '../types';
 import { ProductWithUI } from './datas/products';
 import Header from './components/Header';
