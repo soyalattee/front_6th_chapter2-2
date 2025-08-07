@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react';
 import { CartItem } from '../../types';
+import { useCarts } from '../storeHooks/useCarts';
 
 interface HeaderProps {
   isAdmin: boolean;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   setIsAdmin: (value: boolean) => void;
-  cart: CartItem[];
 }
-const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin, cart }: HeaderProps) => {
-  const [totalItemCount, setTotalItemCount] = useState(0);
-
-  // 장바구니 총 아이템 수 계산
-  useEffect(() => {
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    setTotalItemCount(count);
-  }, [cart]);
+const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin }: HeaderProps) => {
+  const { getTotalCartItemCount } = useCarts();
+  const totalItemCount = getTotalCartItemCount();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40 border-b">
@@ -55,7 +50,7 @@ const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin, cart }: Header
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                {cart.length > 0 && (
+                {totalItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {totalItemCount}
                   </span>

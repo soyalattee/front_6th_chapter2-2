@@ -15,10 +15,9 @@ const App = () => {
   // localstorage 저장 데이터들
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart } = useCarts();
-  const { coupons, addCoupon, deleteCoupon } = useCoupons();
+  const { coupons, addCoupon, deleteCoupon, selectedCoupon, setSelectedCoupon } = useCoupons();
 
   // UI관련 상태값들
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const { notifications, addNotification, removeNotification } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
@@ -163,7 +162,7 @@ const App = () => {
     addNotification(`주문이 완료되었습니다. 주문번호: ${orderNumber}`, 'success');
     clearCart();
     setSelectedCoupon(null);
-  }, [addNotification, clearCart]);
+  }, [addNotification, clearCart, setSelectedCoupon]);
 
   // --------------- UI 데이터 -------------------------------------------------------------
 
@@ -184,29 +183,11 @@ const App = () => {
       {/* 알림 메시지 컴포넌트 */}
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
       {/* 헤더 컴포넌트 */}
-      <Header
-        isAdmin={isAdmin}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        setIsAdmin={setIsAdmin}
-        cart={cart}
-      />
+      <Header isAdmin={isAdmin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setIsAdmin={setIsAdmin} />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {isAdmin ? (
-          <AdminPage
-            coupons={coupons}
-            addNotification={addNotification}
-            addCoupon={addCoupon}
-            deleteCoupon={deleteCoupon}
-            setSelectedCoupon={setSelectedCoupon}
-            selectedCoupon={selectedCoupon}
-            formatPrice={formatPrice}
-            products={products}
-            addProduct={addProduct}
-            updateProduct={updateProduct}
-            deleteProduct={deleteProduct}
-          />
+          <AdminPage addNotification={addNotification} formatPrice={formatPrice} />
         ) : (
           <CustomerPage
             filteredProducts={filteredProducts}
@@ -218,7 +199,6 @@ const App = () => {
             cart={cart}
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
-            coupons={coupons}
             selectedCoupon={selectedCoupon}
             totals={totals}
             completeOrder={completeOrder}

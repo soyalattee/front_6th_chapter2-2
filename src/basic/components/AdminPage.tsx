@@ -2,34 +2,17 @@ import { useState, useCallback } from 'react';
 import { Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
 import { useProducts } from '../storeHooks/useProducts';
+import { useCoupons } from '../storeHooks/useCoupons';
 
 interface AdminPageProps {
-  coupons: Coupon[];
   addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-  addCoupon: (newCoupon: Coupon) => void;
-  deleteCoupon: (couponCode: string) => void;
-  setSelectedCoupon: React.Dispatch<React.SetStateAction<Coupon | null>>;
-  selectedCoupon: Coupon | null;
   formatPrice: (price: number, productId?: string) => string;
-  products: ProductWithUI[];
-  addProduct: (product: Omit<ProductWithUI, 'id'>) => void;
-  updateProduct: (productId: string, updates: Partial<ProductWithUI>) => void;
-  deleteProduct: (productId: string) => void;
 }
 
-const AdminPage = ({
-  coupons,
-  addNotification,
-  addCoupon,
-  deleteCoupon,
-  setSelectedCoupon,
-  selectedCoupon,
-  formatPrice,
-  products,
-  addProduct,
-  updateProduct,
-  deleteProduct
-}: AdminPageProps) => {
+const AdminPage = ({ addNotification, formatPrice }: AdminPageProps) => {
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { coupons, addCoupon, deleteCoupon } = useCoupons();
+
   const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -89,12 +72,9 @@ const AdminPage = ({
   const handleDeleteCoupon = useCallback(
     (couponCode: string) => {
       deleteCoupon(couponCode);
-      if (selectedCoupon?.code === couponCode) {
-        setSelectedCoupon(null);
-      }
       addNotification('쿠폰이 삭제되었습니다.', 'success');
     },
-    [selectedCoupon, addNotification, deleteCoupon]
+    [addNotification, deleteCoupon]
   );
 
   // 상품 추가/수정 폼 제출

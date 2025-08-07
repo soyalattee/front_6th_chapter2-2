@@ -1,5 +1,6 @@
 import { CartItem, Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
+import { useCoupons } from '../storeHooks/useCoupons';
 
 interface CustomerPageProps {
   filteredProducts: ProductWithUI[];
@@ -10,7 +11,7 @@ interface CustomerPageProps {
   cart: CartItem[];
   updateQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
-  coupons: Coupon[];
+
   selectedCoupon: Coupon | null;
   totals: {
     totalBeforeDiscount: number;
@@ -31,7 +32,6 @@ const CustomerPage = ({
   cart,
   updateQuantity,
   removeFromCart,
-  coupons,
   selectedCoupon,
   totals,
   completeOrder,
@@ -40,6 +40,8 @@ const CustomerPage = ({
   setSelectedCoupon,
   products
 }: CustomerPageProps) => {
+  const { coupons } = useCoupons();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <div className="lg:col-span-3">
