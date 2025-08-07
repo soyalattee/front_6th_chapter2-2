@@ -1,12 +1,13 @@
 import { CartItem, Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
 import { useCoupons } from '../storeHooks/useCoupons';
+import { formatCustomerPrice } from '../utils/formatters';
 
 interface CustomerPageProps {
   filteredProducts: ProductWithUI[];
   debouncedSearchTerm: string;
   getRemainingStock: (product: ProductWithUI) => number;
-  formatPrice: (price: number, productId?: string) => string;
+
   addToCart: (product: ProductWithUI) => void;
   cart: CartItem[];
   updateQuantity: (productId: string, quantity: number) => void;
@@ -27,7 +28,7 @@ const CustomerPage = ({
   filteredProducts,
   debouncedSearchTerm,
   getRemainingStock,
-  formatPrice,
+
   addToCart,
   cart,
   updateQuantity,
@@ -98,7 +99,9 @@ const CustomerPage = ({
 
                       {/* 가격 정보 */}
                       <div className="mb-3">
-                        <p className="text-lg font-bold text-gray-900">{formatPrice(product.price, product.id)}</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {formatCustomerPrice(product.price, product, getRemainingStock)}
+                        </p>
                         {product.discounts.length > 0 && (
                           <p className="text-xs text-gray-500">
                             {product.discounts[0].quantity}개 이상 구매시 할인 {product.discounts[0].rate * 100}%

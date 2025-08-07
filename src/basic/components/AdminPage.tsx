@@ -3,13 +3,13 @@ import { Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
 import { useProducts } from '../storeHooks/useProducts';
 import { useCoupons } from '../storeHooks/useCoupons';
+import { formatAdminPrice } from '../utils/formatters';
 
 interface AdminPageProps {
   addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-  formatPrice: (price: number, productId?: string) => string;
 }
 
-const AdminPage = ({ addNotification, formatPrice }: AdminPageProps) => {
+const AdminPage = ({ addNotification }: AdminPageProps) => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { coupons, addCoupon, deleteCoupon } = useCoupons();
 
@@ -195,7 +195,7 @@ const AdminPage = ({ addNotification, formatPrice }: AdminPageProps) => {
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatPrice(product.price, product.id)}
+                      {formatAdminPrice(product.price)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span

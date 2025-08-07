@@ -23,22 +23,6 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // 가격 포맷팅 + 품절 표시 (분리 필요)
-  const formatPrice = (price: number, productId?: string): string => {
-    if (productId) {
-      const product = products.find(p => p.id === productId);
-      if (product && getRemainingStock(product) <= 0) {
-        return 'SOLD OUT';
-      }
-    }
-
-    if (isAdmin) {
-      return `${price.toLocaleString()}원`;
-    }
-
-    return `₩${price.toLocaleString()}`;
-  };
-
   // 할인 적용 가능한 최대 할인율 계산: 수량 할인 + 대량 구매 시 추가 5% 할인, 최대 50% 할인
   const getMaxApplicableDiscount = (item: CartItem): number => {
     const { discounts } = item.product;
@@ -187,13 +171,12 @@ const App = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {isAdmin ? (
-          <AdminPage addNotification={addNotification} formatPrice={formatPrice} />
+          <AdminPage addNotification={addNotification} />
         ) : (
           <CustomerPage
             filteredProducts={filteredProducts}
             debouncedSearchTerm={debouncedSearchTerm}
             getRemainingStock={getRemainingStock}
-            formatPrice={formatPrice}
             addToCart={handleAddToCart}
             products={products}
             cart={cart}
