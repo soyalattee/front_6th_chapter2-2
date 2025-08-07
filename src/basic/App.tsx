@@ -23,6 +23,10 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+  const toggleAdmin = useCallback(() => {
+    setIsAdmin(prev => !prev);
+  }, []);
+
   // 할인 적용 가능한 최대 할인율 계산: 수량 할인 + 대량 구매 시 추가 5% 할인, 최대 50% 할인
   const getMaxApplicableDiscount = (item: CartItem): number => {
     const { discounts } = item.product;
@@ -167,7 +171,7 @@ const App = () => {
       {/* 알림 메시지 컴포넌트 */}
       <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
       {/* 헤더 컴포넌트 */}
-      <Header isAdmin={isAdmin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setIsAdmin={setIsAdmin} />
+      <Header isAdmin={isAdmin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} toggleAdmin={toggleAdmin} />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {isAdmin ? (

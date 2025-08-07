@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
-import { CartItem } from '../../types';
 import { useCarts } from '../storeHooks/useCarts';
 
 interface HeaderProps {
   isAdmin: boolean;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  setIsAdmin: (value: boolean) => void;
+  toggleAdmin: () => void;
 }
-const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin }: HeaderProps) => {
+const Header = ({ isAdmin, searchTerm, setSearchTerm, toggleAdmin }: HeaderProps) => {
   const { getTotalCartItemCount } = useCarts();
   const totalItemCount = getTotalCartItemCount();
 
@@ -33,7 +31,7 @@ const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin }: HeaderProps)
           </div>
           <nav className="flex items-center space-x-4">
             <button
-              onClick={() => setIsAdmin(!isAdmin)}
+              onClick={toggleAdmin}
               className={`px-3 py-1.5 text-sm rounded transition-colors ${
                 isAdmin ? 'bg-gray-800 text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
