@@ -5,12 +5,6 @@ import { ProductWithUI } from '../datas/products';
 interface AdminPageProps {
   products: ProductWithUI[];
   coupons: Coupon[];
-  setActiveTab: React.Dispatch<React.SetStateAction<'products' | 'coupons'>>;
-  activeTab: 'products' | 'coupons';
-  setShowProductForm: React.Dispatch<React.SetStateAction<boolean>>;
-  showProductForm: boolean;
-  setShowCouponForm: React.Dispatch<React.SetStateAction<boolean>>;
-  showCouponForm: boolean;
   addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
   setProducts: React.Dispatch<React.SetStateAction<ProductWithUI[]>>;
   setCoupons: React.Dispatch<React.SetStateAction<Coupon[]>>;
@@ -22,12 +16,7 @@ interface AdminPageProps {
 const AdminPage = ({
   products,
   coupons,
-  setActiveTab,
-  activeTab,
-  setShowProductForm,
-  showProductForm,
-  setShowCouponForm,
-  showCouponForm,
+
   addNotification,
   setProducts,
   setCoupons,
@@ -35,6 +24,9 @@ const AdminPage = ({
   selectedCoupon,
   formatPrice
 }: AdminPageProps) => {
+  const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
+  const [showCouponForm, setShowCouponForm] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [productForm, setProductForm] = useState({
     name: '',

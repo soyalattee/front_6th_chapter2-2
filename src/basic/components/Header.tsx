@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { CartItem } from '../../types';
 
 interface HeaderProps {
@@ -6,9 +7,16 @@ interface HeaderProps {
   setSearchTerm: (value: string) => void;
   setIsAdmin: (value: boolean) => void;
   cart: CartItem[];
-  totalItemCount: number;
 }
-const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin, cart, totalItemCount }: HeaderProps) => {
+const Header = ({ isAdmin, searchTerm, setSearchTerm, setIsAdmin, cart }: HeaderProps) => {
+  const [totalItemCount, setTotalItemCount] = useState(0);
+
+  // 장바구니 총 아이템 수 계산
+  useEffect(() => {
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    setTotalItemCount(count);
+  }, [cart]);
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40 border-b">
       <div className="max-w-7xl mx-auto px-4">

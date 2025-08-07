@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { CartItem, Coupon, Product, Notification } from '../types';
+import { CartItem, Coupon, Product } from '../types';
 import { initialProducts, ProductWithUI } from './datas/products';
 import { initialCoupons } from './datas/coupons';
 import Header from './components/Header';
@@ -50,14 +50,8 @@ const App = () => {
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const { notifications, addNotification, removeNotification } = useNotification();
-  const [showCouponForm, setShowCouponForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
-  const [showProductForm, setShowProductForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [totalItemCount, setTotalItemCount] = useState(0);
-
-  // Admin
 
   // 가격 포맷팅 + 품절 표시 (분리 필요)
   const formatPrice = (price: number, productId?: string): string => {
@@ -138,12 +132,6 @@ const App = () => {
 
     return remaining;
   };
-
-  // 장바구니 총 아이템 수 계산
-  useEffect(() => {
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    setTotalItemCount(count);
-  }, [cart]);
 
   // 상품 데이터 로컬 저장
   useEffect(() => {
@@ -281,7 +269,6 @@ const App = () => {
         setSearchTerm={setSearchTerm}
         setIsAdmin={setIsAdmin}
         cart={cart}
-        totalItemCount={totalItemCount}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -289,12 +276,6 @@ const App = () => {
           <AdminPage
             products={products}
             coupons={coupons}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-            setShowProductForm={setShowProductForm}
-            showProductForm={showProductForm}
-            setShowCouponForm={setShowCouponForm}
-            showCouponForm={showCouponForm}
             addNotification={addNotification}
             setProducts={setProducts}
             setCoupons={setCoupons}
