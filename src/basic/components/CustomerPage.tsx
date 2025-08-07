@@ -1,47 +1,156 @@
 import { CartItem, Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
+import { useCarts } from '../storeHooks/useCarts';
 import { useCoupons } from '../storeHooks/useCoupons';
+import { useProducts } from '../storeHooks/useProducts';
 import { formatCustomerPrice } from '../utils/formatters';
-
+import { useCallback } from 'react';
+import { Product } from '../../types';
 interface CustomerPageProps {
-  filteredProducts: ProductWithUI[];
   debouncedSearchTerm: string;
-  getRemainingStock: (product: ProductWithUI) => number;
+  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
+}
+const CustomerPage = ({ debouncedSearchTerm, addNotification }: CustomerPageProps) => {
+  // localstorage 저장 데이터들
+  const { products } = useProducts();
+  const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart } = useCarts();
+  const { coupons, selectedCoupon, setSelectedCoupon } = useCoupons();
 
-  addToCart: (product: ProductWithUI) => void;
-  cart: CartItem[];
-  updateQuantity: (productId: string, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
+  // 할인 적용 가능한 최대 할인율 계산: 수량 할인 + 대량 구매 시 추가 5% 할인, 최대 50% 할인
+  const getMaxApplicableDiscount = (item: CartItem): number => {
+    const { discounts } = item.product;
+    const { quantity } = item;
 
-  selectedCoupon: Coupon | null;
-  totals: {
+    // 수량 할인
+    const baseDiscount = discounts.reduce((maxDiscount, discount) => {
+      return quantity >= discount.quantity && discount.rate > maxDiscount ? discount.rate : maxDiscount;
+    }, 0);
+
+    const hasBulkPurchase = cart.some(cartItem => cartItem.quantity >= 10);
+
+    if (hasBulkPurchase) {
+      return Math.min(baseDiscount + 0.05, 0.5); // 대량 구매 시 추가 5% 할인, 최대 50% 할인
+    }
+
+    return baseDiscount;
+  };
+
+  //할인 적용된 상품 가격 계산 (e.g. 사과 3개 할인 적용 가격)
+  const calculateItemTotal = (item: CartItem): number => {
+    const { price } = item.product;
+    const { quantity } = item;
+    const discount = getMaxApplicableDiscount(item);
+
+    return Math.round(price * quantity * (1 - discount));
+  };
+
+  // 장바구니 총 가격 계산 (할인 적용 전, 후)
+  const calculateCartTotal = (): {
     totalBeforeDiscount: number;
     totalAfterDiscount: number;
-  };
-  products: ProductWithUI[];
-  completeOrder: () => void;
-  calculateItemTotal: (item: CartItem) => number;
-  applyCoupon: (coupon: Coupon) => void;
-  setSelectedCoupon: React.Dispatch<React.SetStateAction<Coupon | null>>;
-}
-const CustomerPage = ({
-  filteredProducts,
-  debouncedSearchTerm,
-  getRemainingStock,
+  } => {
+    let totalBeforeDiscount = 0;
+    let totalAfterDiscount = 0;
 
-  addToCart,
-  cart,
-  updateQuantity,
-  removeFromCart,
-  selectedCoupon,
-  totals,
-  completeOrder,
-  calculateItemTotal,
-  applyCoupon,
-  setSelectedCoupon,
-  products
-}: CustomerPageProps) => {
-  const { coupons } = useCoupons();
+    cart.forEach(item => {
+      const itemPrice = item.product.price * item.quantity;
+      totalBeforeDiscount += itemPrice;
+      totalAfterDiscount += calculateItemTotal(item);
+    });
+
+    if (selectedCoupon) {
+      if (selectedCoupon.discountType === 'amount') {
+        totalAfterDiscount = Math.max(0, totalAfterDiscount - selectedCoupon.discountValue);
+      } else {
+        totalAfterDiscount = Math.round(totalAfterDiscount * (1 - selectedCoupon.discountValue / 100));
+      }
+    }
+
+    return {
+      totalBeforeDiscount: Math.round(totalBeforeDiscount),
+      totalAfterDiscount: Math.round(totalAfterDiscount)
+    };
+  };
+
+  //상품 재고 수량 확인
+  const getRemainingStock = (product: Product): number => {
+    const cartItem = cart.find(item => item.product.id === product.id);
+    const remaining = product.stock - (cartItem?.quantity || 0);
+
+    return remaining;
+  };
+  // 장바구니 총 가격 계산
+  const totals = calculateCartTotal();
+
+  const handleAddToCart = useCallback(
+    (product: ProductWithUI) => {
+      const remainingStock = getRemainingStock(product);
+      if (remainingStock <= 0) {
+        addNotification('재고가 부족합니다!', 'error');
+        return;
+      }
+
+      addToCart(product);
+      addNotification('장바구니에 담았습니다', 'success');
+    },
+    [cart, addNotification, getRemainingStock]
+  );
+
+  // 장바구니 수량 업데이트
+  const updateQuantity = useCallback(
+    (productId: string, newQuantity: number) => {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+
+      if (newQuantity <= 0) {
+        removeFromCart(productId);
+        return;
+      }
+
+      const maxStock = product.stock;
+      if (newQuantity > maxStock) {
+        addNotification(`재고는 ${maxStock}개까지만 있습니다.`, 'error');
+        return;
+      }
+
+      // 장바구니 수량 업데이트
+      updateCartQuantity(productId, newQuantity);
+    },
+    [products, removeFromCart, addNotification, getRemainingStock]
+  );
+
+  // 쿠폰 적용
+  const applyCoupon = useCallback(
+    (coupon: Coupon) => {
+      const currentTotal = calculateCartTotal().totalAfterDiscount;
+
+      if (currentTotal < 10000 && coupon.discountType === 'percentage') {
+        addNotification('percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.', 'error');
+        return;
+      }
+
+      setSelectedCoupon(coupon);
+      addNotification('쿠폰이 적용되었습니다.', 'success');
+    },
+    [addNotification, calculateCartTotal]
+  );
+
+  // 주문 완료
+  const completeOrder = useCallback(() => {
+    const orderNumber = `ORD-${Date.now()}`;
+    addNotification(`주문이 완료되었습니다. 주문번호: ${orderNumber}`, 'success');
+    clearCart();
+    setSelectedCoupon(null);
+  }, [addNotification, clearCart, setSelectedCoupon]);
+
+  // 검색어로 상품 필터링
+  const filteredProducts = debouncedSearchTerm
+    ? products.filter(
+        product =>
+          product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          (product.description && product.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+      )
+    : products;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -119,7 +228,7 @@ const CustomerPage = ({
 
                       {/* 장바구니 버튼 */}
                       <button
-                        onClick={() => addToCart(product)}
+                        onClick={() => handleAddToCart(product)}
                         disabled={remainingStock <= 0}
                         className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
                           remainingStock <= 0
