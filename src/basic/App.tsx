@@ -6,6 +6,7 @@ import Header from './components/Header';
 import NotificationContainer from './components/NotificationContainer';
 import AdminPage from './components/AdminPage';
 import CustomerPage from './components/CustomerPage';
+import { useNotification } from './hooks/useNotification';
 
 const App = () => {
   // 히스토리 저장 데이터들
@@ -48,7 +49,7 @@ const App = () => {
   // UI관련 상태값들
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { notifications, addNotification, removeNotification } = useNotification();
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
   const [showProductForm, setShowProductForm] = useState(false);
@@ -137,16 +138,6 @@ const App = () => {
 
     return remaining;
   };
-
-  // 알림 메시지 추가, 3초뒤 제거
-  const addNotification = useCallback((message: string, type: 'error' | 'success' | 'warning' = 'success') => {
-    const id = Date.now().toString();
-    setNotifications(prev => [...prev, { id, message, type }]);
-
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 3000);
-  }, []);
 
   // 장바구니 총 아이템 수 계산
   useEffect(() => {
@@ -282,7 +273,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 알림 메시지 컴포넌트 */}
-      <NotificationContainer notifications={notifications} setNotifications={setNotifications} />
+      <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
       {/* 헤더 컴포넌트 */}
       <Header
         isAdmin={isAdmin}
