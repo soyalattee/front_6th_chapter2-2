@@ -9,6 +9,7 @@ import { useNotification } from './hooks/useNotification';
 import { useProducts } from './storeHooks/useProducts';
 import { useCarts } from './storeHooks/useCarts';
 import { useCoupons } from './storeHooks/useCoupons';
+import { useDebounce } from './utils/hooks/useDebounce';
 
 const App = () => {
   // localstorage 저장 데이터들
@@ -21,7 +22,7 @@ const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { notifications, addNotification, removeNotification } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // 가격 포맷팅 + 품절 표시 (분리 필요)
   const formatPrice = (price: number, productId?: string): string => {
@@ -102,16 +103,6 @@ const App = () => {
 
     return remaining;
   };
-
- 
-
-  // 검색어 디바운스 처리
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
 
   const handleAddToCart = useCallback(
     (product: ProductWithUI) => {
