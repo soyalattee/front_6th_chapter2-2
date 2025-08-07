@@ -7,21 +7,11 @@ import NotificationContainer from './components/NotificationContainer';
 import AdminPage from './components/AdminPage';
 import CustomerPage from './components/CustomerPage';
 import { useNotification } from './hooks/useNotification';
+import { useProducts } from './storeHooks/useProducts';
 
 const App = () => {
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   // 히스토리 저장 데이터들
-  const [products, setProducts] = useState<ProductWithUI[]>(() => {
-    const saved = localStorage.getItem('products');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialProducts;
-      }
-    }
-    return initialProducts;
-  });
-
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('cart');
     if (saved) {
@@ -132,11 +122,6 @@ const App = () => {
 
     return remaining;
   };
-
-  // 상품 데이터 로컬 저장
-  useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
-  }, [products]);
 
   // 쿠폰 데이터 로컬 저장
   useEffect(() => {
@@ -274,23 +259,25 @@ const App = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {isAdmin ? (
           <AdminPage
-            products={products}
             coupons={coupons}
             addNotification={addNotification}
-            setProducts={setProducts}
             setCoupons={setCoupons}
             setSelectedCoupon={setSelectedCoupon}
             selectedCoupon={selectedCoupon}
             formatPrice={formatPrice}
+            products={products}
+            addProduct={addProduct}
+            updateProduct={updateProduct}
+            deleteProduct={deleteProduct}
           />
         ) : (
           <CustomerPage
-            products={products}
             filteredProducts={filteredProducts}
             debouncedSearchTerm={debouncedSearchTerm}
             getRemainingStock={getRemainingStock}
             formatPrice={formatPrice}
             addToCart={addToCart}
+            products={products}
             cart={cart}
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}

@@ -2,7 +2,6 @@ import { CartItem, Coupon } from '../../types';
 import { ProductWithUI } from '../datas/products';
 
 interface CustomerPageProps {
-  products: ProductWithUI[];
   filteredProducts: ProductWithUI[];
   debouncedSearchTerm: string;
   getRemainingStock: (product: ProductWithUI) => number;
@@ -17,13 +16,13 @@ interface CustomerPageProps {
     totalBeforeDiscount: number;
     totalAfterDiscount: number;
   };
+  products: ProductWithUI[];
   completeOrder: () => void;
   calculateItemTotal: (item: CartItem) => number;
   applyCoupon: (coupon: Coupon) => void;
   setSelectedCoupon: React.Dispatch<React.SetStateAction<Coupon | null>>;
 }
 const CustomerPage = ({
-  products,
   filteredProducts,
   debouncedSearchTerm,
   getRemainingStock,
@@ -38,7 +37,8 @@ const CustomerPage = ({
   completeOrder,
   calculateItemTotal,
   applyCoupon,
-  setSelectedCoupon
+  setSelectedCoupon,
+  products
 }: CustomerPageProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
