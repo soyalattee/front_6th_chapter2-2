@@ -3,6 +3,10 @@ import { calculateDiscountedPrice } from '../utils/calculateDiscountedPrice';
 import { applyBulkDiscount } from '../utils/applyBulkDiscount';
 import { CartItem, Product } from '../../types';
 
+const BULK_PURCHASE_QUANTITY = 10;
+const BULK_PURCHASE_DISCOUNT_RATE = 0.05;
+const BULK_PURCHASE_DISCOUNT_LIMIT = 0.5;
+
 export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
   // 할인 적용 가능한 최대 할인율 계산: 수량 할인 + 대량 구매 시 추가 5% 할인, 최대 50% 할인
   const getMaxApplicableDiscount = (item: CartItem): number => {
@@ -14,10 +18,10 @@ export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
       return quantity >= discount.quantity && discount.rate > maxDiscount ? discount.rate : maxDiscount;
     }, 0);
 
-    const hasBulkPurchase = cart.some(cartItem => cartItem.quantity >= 10);
+    const hasBulkPurchase = cart.some(cartItem => cartItem.quantity >= BULK_PURCHASE_QUANTITY);
 
     if (hasBulkPurchase) {
-      return applyBulkDiscount(baseDiscount); // 대량 구매 시 추가 5% 할인, 최대 50% 할인
+      return applyBulkDiscount(baseDiscount, BULK_PURCHASE_DISCOUNT_RATE, BULK_PURCHASE_DISCOUNT_LIMIT); // 대량 구매 시 추가 5% 할인, 최대 50% 할인
     }
 
     return baseDiscount;
