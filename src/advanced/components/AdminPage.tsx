@@ -4,11 +4,7 @@ import { useCoupons } from '../storeHooks/useCoupons';
 import ProductManagement from './admin/ProductManagement';
 import CouponManagement from './admin/CouponManagement';
 
-interface AdminPageProps {
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-}
-
-const AdminPage = ({ addNotification }: AdminPageProps) => {
+const AdminPage = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { coupons, addCoupon, deleteCoupon } = useCoupons();
   const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
@@ -50,15 +46,9 @@ const AdminPage = ({ addNotification }: AdminPageProps) => {
           addProduct={addProduct}
           updateProduct={updateProduct}
           deleteProduct={deleteProduct}
-          addNotification={addNotification}
         />
       ) : (
-        <CouponManagement
-          coupons={coupons}
-          addCoupon={addCoupon}
-          deleteCoupon={deleteCoupon}
-          addNotification={addNotification}
-        />
+        <CouponManagement coupons={coupons} addCoupon={addCoupon} deleteCoupon={deleteCoupon} />
       )}
     </div>
   );

@@ -1,11 +1,40 @@
-import { Notification } from '../../types';
+import { useEffect, useRef } from 'react';
 import CloseIcon from './icons/CloseIcon';
+import { useNotifications } from '../store/hooks';
 
-interface NotificationContainerProps {
-  notifications: Notification[];
-  removeNotification: (id: string) => void;
-}
-const NotificationContainer = ({ notifications, removeNotification }: NotificationContainerProps) => {
+const NotificationContainer = () => {
+  const { notifications, removeNotification } = useNotifications();
+  const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // 새로운 알림에 대해서만 타이머 설정
+  useEffect(() => {
+    notifications.forEach(notification => {
+      if (!timersRef.current.has(notification.id)) {
+        const timer = setTimeout(() => {
+          removeNotification(notification.id);
+          timersRef.current.delete(notification.id);
+        }, 3000);
+        timersRef.current.set(notification.id, timer);
+      }
+    });
+
+    // 더 이상 존재하지 않는 알림의 타이머 정리
+    timersRef.current.forEach((timer, id) => {
+      if (!notifications.find(n => n.id === id)) {
+        clearTimeout(timer);
+        timersRef.current.delete(id);
+      }
+    });
+  }, [notifications, removeNotification]);
+
+  // 컴포넌트 언마운트 시 모든 타이머 정리
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(timer => clearTimeout(timer));
+      timersRef.current.clear();
+    };
+  }, []);
+
   if (notifications.length === 0) return null;
 
   return (

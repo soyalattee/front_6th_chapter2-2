@@ -1,35 +1,50 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Provider, createStore } from 'jotai';
 import Header from './components/Header';
 import NotificationContainer from './components/NotificationContainer';
 import AdminPage from './components/AdminPage';
 import CustomerPage from './components/CustomerPage';
-import { useNotification } from './hooks/useNotification';
-import { useSearchTerm } from './hooks/useSearchTerm';
 import Layout from './components/Layout';
+import { useAdmin } from './store/hooks';
 
-const App = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const { notifications, addNotification, removeNotification } = useNotification();
-  const { searchTerm, setSearchTerm, debouncedSearchTerm } = useSearchTerm();
-  const toggleAdmin = useCallback(() => {
-    setIsAdmin(prev => !prev);
-  }, []);
+const AppContent = () => {
+  const { isAdmin } = useAdmin();
 
   return (
-    <Layout
-      Header={
-        <Header isAdmin={isAdmin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} toggleAdmin={toggleAdmin} />
-      }
-      NotificationContainer={
-        <NotificationContainer notifications={notifications} removeNotification={removeNotification} />
-      }
-    >
-      {isAdmin ? (
-        <AdminPage addNotification={addNotification} />
-      ) : (
-        <CustomerPage debouncedSearchTerm={debouncedSearchTerm} addNotification={addNotification} />
-      )}
+    <Layout Header={<Header />} NotificationContainer={<NotificationContainer />}>
+      {isAdmin ? <AdminPage /> : <CustomerPage />}
     </Layout>
+  );
+};
+
+const App = () => {
+  // Provider를 강제로 재마운트하기 위한 key 생성
+  const [providerKey, setProviderKey] = useState(0);
+
+  // localStorage.clear() 시 Provider 재마운트
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const originalClear = localStorage.clear;
+      localStorage.clear = function () {
+        originalClear.call(this);
+        setProviderKey(prev => prev + 1);
+      };
+
+      return () => {
+        localStorage.clear = originalClear;
+      };
+    }
+  }, []);
+
+  // 모든 환경에서 명시적으로 store 생성
+  const store = useMemo(() => {
+    return createStore();
+  }, [providerKey]);
+
+  return (
+    <Provider key={providerKey} store={store}>
+      <AppContent />
+    </Provider>
   );
 };
 

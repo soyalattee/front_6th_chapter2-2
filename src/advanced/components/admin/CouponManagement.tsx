@@ -3,20 +3,21 @@ import { useCouponForm } from '../../hooks/useCouponForm';
 import CouponForm from './CouponForm';
 import TrashIcon from '../icons/TrashIcon';
 import AddIcon from '../icons/AddIcon';
+import { useNotifications } from '../../store/hooks';
 
 interface CouponManagementProps {
   coupons: Coupon[];
   addCoupon: (coupon: Coupon) => void;
   deleteCoupon: (code: string) => void;
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
 }
 
-const CouponManagement = ({ coupons, addCoupon, deleteCoupon, addNotification }: CouponManagementProps) => {
-  const couponForm = useCouponForm(coupons, addCoupon, addNotification);
+const CouponManagement = ({ coupons, addCoupon, deleteCoupon }: CouponManagementProps) => {
+  const { addNotification } = useNotifications();
+  const couponForm = useCouponForm(coupons, addCoupon);
 
   const handleDelete = (couponCode: string) => {
     deleteCoupon(couponCode);
-    addNotification('쿠폰이 삭제되었습니다.', 'success');
+    addNotification({ message: '쿠폰이 삭제되었습니다.', type: 'success' });
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Coupon } from '../../types';
+import { useNotifications } from '../store/hooks';
 
 interface CouponFormData {
   name: string;
@@ -8,11 +9,8 @@ interface CouponFormData {
   discountValue: number;
 }
 
-export const useCouponForm = (
-  coupons: Coupon[],
-  addCoupon: (coupon: Coupon) => void,
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void
-) => {
+export const useCouponForm = (coupons: Coupon[], addCoupon: (coupon: Coupon) => void) => {
+  const { addNotification } = useNotifications();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<CouponFormData>({
     name: '',
@@ -37,12 +35,12 @@ export const useCouponForm = (
 
       const existingCoupon = coupons.find(c => c.code === formData.code);
       if (existingCoupon) {
-        addNotification('이미 존재하는 쿠폰 코드입니다.', 'error');
+        addNotification({ message: '이미 존재하는 쿠폰 코드입니다.', type: 'error' });
         return;
       }
 
       addCoupon(formData);
-      addNotification('쿠폰이 추가되었습니다.', 'success');
+      addNotification({ message: '쿠폰이 추가되었습니다.', type: 'success' });
       resetForm();
     },
     [formData, coupons, addCoupon, addNotification, resetForm]
@@ -58,14 +56,14 @@ export const useCouponForm = (
 
       if (formData.discountType === 'percentage') {
         if (numValue > 100) {
-          addNotification('할인율은 100%를 초과할 수 없습니다', 'error');
+          addNotification({ message: '할인율은 100%를 초과할 수 없습니다', type: 'error' });
           updateFormData({ discountValue: 100 });
         } else if (numValue < 0) {
           updateFormData({ discountValue: 0 });
         }
       } else {
         if (numValue > 100000) {
-          addNotification('할인 금액은 100,000원을 초과할 수 없습니다', 'error');
+          addNotification({ message: '할인 금액은 100,000원을 초과할 수 없습니다', type: 'error' });
           updateFormData({ discountValue: 100000 });
         } else if (numValue < 0) {
           updateFormData({ discountValue: 0 });

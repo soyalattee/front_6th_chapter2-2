@@ -1,14 +1,11 @@
 import { useCarts } from '../storeHooks/useCarts';
 import SearchInput from './SearchInput';
 import CartIcon from './icons/CartIcon';
+import { useAdmin, useSearch } from '../store/hooks';
 
-interface HeaderProps {
-  isAdmin: boolean;
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  toggleAdmin: () => void;
-}
-const Header = ({ isAdmin, searchTerm, setSearchTerm, toggleAdmin }: HeaderProps) => {
+const Header = () => {
+  const { isAdmin, toggleAdmin } = useAdmin();
+  const { searchTerm, setSearchTerm } = useSearch();
   const { getTotalCartItemCount } = useCarts();
   const totalItemCount = getTotalCartItemCount();
 

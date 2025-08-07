@@ -2,27 +2,21 @@ import { ProductWithUI } from '../../datas/products';
 import { formatAdminPrice } from '../../utils/formatters';
 import { useProductForm } from '../../hooks/useProductForm';
 import ProductForm from './ProductForm';
+import { useNotifications } from '../../store/hooks';
 
 interface ProductManagementProps {
   products: ProductWithUI[];
   addProduct: (product: Omit<ProductWithUI, 'id'>) => void;
   updateProduct: (id: string, updates: Partial<ProductWithUI>) => void;
   deleteProduct: (id: string) => void;
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
 }
 
-const ProductManagement = ({
-  products,
-  addProduct,
-  updateProduct,
-  deleteProduct,
-  addNotification
-}: ProductManagementProps) => {
-  const productForm = useProductForm(addProduct, updateProduct, addNotification);
-
+const ProductManagement = ({ products, addProduct, updateProduct, deleteProduct }: ProductManagementProps) => {
+  const { addNotification } = useNotifications();
+  const productForm = useProductForm(addProduct, updateProduct);
   const handleDelete = (productId: string) => {
     deleteProduct(productId);
-    addNotification('상품이 삭제되었습니다.', 'success');
+    addNotification({ message: '상품이 삭제되었습니다.', type: 'success' });
   };
 
   return (

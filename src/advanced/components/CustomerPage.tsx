@@ -7,13 +7,11 @@ import ProductList from './customer/ProductList';
 import Cart from './customer/Cart';
 import CouponSection from './customer/CouponSection';
 import CheckoutSection from './customer/CheckoutSection';
+import { useSearch, useNotifications } from '../store/hooks';
 
-interface CustomerPageProps {
-  debouncedSearchTerm: string;
-  addNotification: (message: string, type: 'error' | 'success' | 'warning') => void;
-}
+const CustomerPage = () => {
+  const { debouncedSearchTerm } = useSearch();
 
-const CustomerPage = ({ debouncedSearchTerm, addNotification }: CustomerPageProps) => {
   const { products } = useProducts();
   const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart } = useCarts();
   const { coupons, selectedCoupon, setSelectedCoupon } = useCoupons();
@@ -28,8 +26,7 @@ const CustomerPage = ({ debouncedSearchTerm, addNotification }: CustomerPageProp
     clearCart,
     setSelectedCoupon,
     getRemainingStock,
-    totals,
-    addNotification
+    totals
   });
 
   // 검색어로 상품 필터링
