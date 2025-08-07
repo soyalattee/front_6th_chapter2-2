@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { CartItem } from '../../types';
 import { ProductWithUI } from '../datas/products';
-import { useLocalStorage } from '../utils/hooks/useLocalStorage';
+import { useSyncedLocalStorage } from '../utils/hooks/useSyncedLocalStorage';
 
 export const useCarts = () => {
-  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', []);
+  const [cart, setCart] = useSyncedLocalStorage<CartItem[]>('cart', []);
 
   // 장바구니에 추가
   const addToCart = useCallback(
@@ -46,5 +46,15 @@ export const useCarts = () => {
     setCart([]);
   }, [setCart]);
 
-  return { cart, addToCart, removeFromCart, updateCartQuantity, clearCart };
+  // 장바구니 총 아이템 수 계산
+  const getTotalCartItemCount = () => cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  return {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateCartQuantity,
+    clearCart,
+    getTotalCartItemCount
+  };
 };

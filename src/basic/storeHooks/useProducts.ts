@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { initialProducts, ProductWithUI } from '../datas/products';
-import { useLocalStorage } from '../utils/hooks/useLocalStorage';
+import { useSyncedLocalStorage } from '../utils/hooks/useSyncedLocalStorage';
 
 export const useProducts = () => {
-  const [products, setProducts] = useLocalStorage<ProductWithUI[]>('products', initialProducts);
+  const [products, setProducts] = useSyncedLocalStorage<ProductWithUI[]>('products', initialProducts);
 
   //판매상품에 새 상품을 추가
   const addProduct = useCallback(
