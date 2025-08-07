@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { calculateDiscountedPrice } from '../utils/calculateDiscountedPrice';
+import { applyBulkDiscount } from '../utils/applyBulkDiscount';
 import { CartItem, Product } from '../../types';
 
 export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
@@ -16,7 +17,7 @@ export const useCartCalculations = (cart: CartItem[], selectedCoupon: any) => {
     const hasBulkPurchase = cart.some(cartItem => cartItem.quantity >= 10);
 
     if (hasBulkPurchase) {
-      return Math.min(baseDiscount + 0.05, 0.5); // 대량 구매 시 추가 5% 할인, 최대 50% 할인
+      return applyBulkDiscount(baseDiscount); // 대량 구매 시 추가 5% 할인, 최대 50% 할인
     }
 
     return baseDiscount;
